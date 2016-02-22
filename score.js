@@ -1,7 +1,7 @@
 
 var renderer = new frampton.WebRenderer({
   mediaConfig: mediaConfig,
-  timeToLoadVideo: 3600,
+  timeToLoadVideo: 6000,
   videoSourceMaker: function(filename) {
     switch (filename[0]) {
       case 'F':
@@ -16,27 +16,34 @@ var renderer = new frampton.WebRenderer({
   }
 });
 
-var firstSegment = newSequencedSegment();
-renderer.scheduleSegmentRender(firstSegment, 2000);
+var videos = frampton.util.shuffle(mediaConfig.videos);
 
-function newSequencedSegment() {
-  var segments = [];
+// schedule 3 at the bang
+for (var i = 0; i < 3; i++) {
+  renderer.scheduleSegmentRender(newSegment(), 4500 + i * 400);
+}
 
-  var videos = frampton.util.shuffle(mediaConfig.videos);
-  videos.forEach((video) => {
-    var segment = new frampton.VideoSegment(video);
-    segments.push(segment);
-  });
+function newSegment() {
+  var video = frampton.util.choice(videos);
+  var width = Math.random() * 40 + 35;
+  var left = (100 - width * 0.75) * Math.random();
+  var top = Math.random() * 35;
+  var opacity = Math.random() * 0.45 + 0.55;
 
-  var sequencedSegment = new frampton.SequencedSegment({
-    segments: segments,
+  var segment = new frampton.VideoSegment({
+    filename: video.filename,
+    duration: video.duration,
+    width: width + '%',
+    left: left + '%',
+    top: top + '%',
+    opacity: opacity,
     onStart: () => {
-      // once it starts, schedule the next loop with a new shuffle
-      var newSegment = newSequencedSegment();
-      var offset = sequencedSegment.msDuration();
-      renderer.scheduleSegmentRender(newSegment, offset);
+      // once it starts, schedule the next one
+      var duration = segment.msDuration();
+      var offset = (Math.random() * duration * 0.5) + duration * 0.75;
+      renderer.scheduleSegmentRender(newSegment(), offset);
     }
   });
 
-  return sequencedSegment;
+  return segment;
 }
