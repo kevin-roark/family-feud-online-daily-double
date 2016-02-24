@@ -16,43 +16,34 @@ var renderer = new frampton.WebRenderer({
   }
 });
 
-// schedule 3 self-doublers at the bang
+// schedule 3 stacked segments at the bang
 for (var i = 0; i < 3; i++) {
-  setupDoubledGhostSegments(4500 + i * 1200);
+  renderer.scheduleSegmentRender(stackedGhostSegment(), 4500 + i * 1100);
 }
 
-function setupDoubledGhostSegments(segmentOffset=0) {
-  // multiple segments scheduled at a time for loading optimization
-
+function stackedGhostSegment() {
   var segments = [];
-  var videoOffset = 0;
-  for (var i = 0; i < 10; i++) {
-    var segment = ghostVideoSegment();
-    segment.__offset = segmentOffset + videoOffset;
-    segments.push(segment);
+  for (var i = 0; i < 10; i++) { segments.push(ghostVideoSegment()); }
 
-    var duration = segment.msDuration();
-    videoOffset += (Math.random() * duration * 0.5) + duration * 0.75;
-  }
-
-  segments[0].onStart = () => {
-    // once the first segment starts, schedule the next batch
-    var nextSegmentOffset = videoOffset + Math.random() * 500 + 200;
-    console.log(`next segment ${nextSegmentOffset}`);
-    setupDoubledGhostSegments(nextSegmentOffset);
-  };
-
-  segments.forEach((segment) => {
-    renderer.scheduleSegmentRender(segment, segment.__offset);
+  var stackedSegment = new frampton.StackedSegment({
+    segments: segments,
+    onStart: () => {
+      // once the first segment starts, schedule the next batch
+      var nextSegment = stackedGhostSegment();
+      var nextSegmentOffset = stackedSegment.msDuration() + Math.random() * 500;
+      renderer.scheduleSegmentRender(nextSegment, nextSegmentOffset);
+    }
   });
+
+  return stackedSegment;
 }
 
 function ghostVideoSegment() {
   var video = frampton.util.choice(mediaConfig.videos);
-  var width = Math.random() * 60 + 25;
-  var left = (100 - width * 0.8) * Math.random();
+  var width = Math.random() * 56 + 34;
+  var left = (100 - width * 0.85) * Math.random();
   var top = Math.random() * 35;
-  var opacity = Math.random() * 0.45 + 0.48;
+  var opacity = Math.random() * 0.43 + 0.5;
 
   var segment = new frampton.VideoSegment({
     filename: video.filename,
