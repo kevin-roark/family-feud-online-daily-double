@@ -18,7 +18,7 @@ var renderer = new frampton.WebRenderer({
 
 // schedule 3 self-doublers at the bang
 for (var i = 0; i < 3; i++) {
-  setupDoubledGhostSegments(4500 + i * 1000);
+  setupDoubledGhostSegments(4500 + i * 1200);
 }
 
 function setupDoubledGhostSegments(segmentOffset=0) {
@@ -49,8 +49,8 @@ function setupDoubledGhostSegments(segmentOffset=0) {
 
 function ghostVideoSegment() {
   var video = frampton.util.choice(mediaConfig.videos);
-  var width = Math.random() * 55 + 35;
-  var left = (100 - width * 0.75) * Math.random();
+  var width = Math.random() * 60 + 25;
+  var left = (100 - width * 0.8) * Math.random();
   var top = Math.random() * 35;
   var opacity = Math.random() * 0.45 + 0.48;
 
